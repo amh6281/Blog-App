@@ -33,7 +33,6 @@ a {
   margin-right: auto;
   padding-left: 80px;
   padding-right: 80px;
-  background-color: red;
 }
 /* 대형 데스크탑 */
 @media screen and (max-width: 1536px) {
