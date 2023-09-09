@@ -1,15 +1,7 @@
 "use client";
 
-import { ReactNode, createContext, useEffect, useState } from "react";
-
-type ThemeContextType = {
-  theme: string;
-  toggle: () => void;
-};
-
-type ThemeContextProviderProps = {
-  children: ReactNode;
-};
+import { ThemeContextProviderProps, ThemeContextType } from "@/types/types";
+import { createContext, useEffect, useState } from "react";
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined
