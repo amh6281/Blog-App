@@ -1,10 +1,10 @@
 "use client";
 
 import { ThemeContext } from "@/context/ThemeContext";
-import { ThemeContextType } from "@/types/types";
+import { ThemeContextProviderProps, ThemeContextType } from "@/types/types";
 import React, { useContext } from "react";
 
-const ThemeProvider = ({ children }: any) => {
+const ThemeProvider: React.FC<ThemeContextProviderProps> = ({ children }) => {
   const theme = useContext<ThemeContextType | undefined>(ThemeContext);
 
   return <div className={theme?.theme}>{children}</div>;
