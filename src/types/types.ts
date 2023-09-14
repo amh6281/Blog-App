@@ -8,3 +8,7 @@ export type ThemeContextType = {
 export type ThemeContextProviderProps = {
   children: ReactNode;
 };
+
+export type ImageProps = {
+  withImage: boolean;
+};

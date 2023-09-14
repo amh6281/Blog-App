@@ -1,12 +1,9 @@
 import Link from "next/link";
 import styles from "./menuPosts.module.css";
 import Image from "next/image";
+import { ImageProps } from "@/types/types";
 
-type props = {
-  withImage: boolean;
-};
-
-const MenuPosts = ({ withImage }: props) => {
+const MenuPosts = ({ withImage }: ImageProps) => {
   return (
     <div className={styles.items}>
       <Link href="/" className={styles.item}>
