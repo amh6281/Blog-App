@@ -12,3 +12,11 @@ export type ThemeContextProviderProps = {
 export type ImageProps = {
   withImage: boolean;
 };
+
+export type CatType = {
+  _id: string;
+  slug: string;
+  title: string;
+  img: string;
+  posts: [];
+}[];
