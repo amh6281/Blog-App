@@ -4,18 +4,25 @@ import Card from "../card/Card";
 import Pagination from "../pagination/Pagination";
 import { PostType } from "@/types/types";
 
-const getData = async (page: number) => {
-  const res = await fetch(`http://localhost:3000/api/posts?page=${page}`, {
-    cache: "no-cache",
-  });
+const getData = async (page: number, cat: string) => {
+  const res = await fetch(
+    `http://localhost:3000/api/posts?page=${page}&cat=${cat || ""}`,
+    {
+      cache: "no-cache",
+    }
+  );
   if (!res.ok) {
     throw new Error("실패");
   }
   return res.json();
 };
 
-const CardList = async ({ page }: { page: number }) => {
-  const { posts, count } = await getData(page);
+const CardList = async ({ page, cat }: { page: number; cat?: string }) => {
+  if (cat === undefined) {
+    cat = "";
+  }
+
+  const { posts, count } = await getData(page, cat);
 
   const POST_PER_PAGE = 2;
 
