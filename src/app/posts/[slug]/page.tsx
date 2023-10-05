@@ -3,51 +3,57 @@ import styles from "./singlePage.module.css";
 import Menu from "@/components/menu/Menu";
 import Comments from "@/components/comments/Comments";
 
-const SinglePage = () => {
+const getData = async (slug: string) => {
+  const res = await fetch(`http://localhost:3000/api/posts/${slug}`, {
+    cache: "no-cache",
+  });
+  if (!res.ok) {
+    throw new Error("실패");
+  }
+  return res.json();
+};
+
+const SinglePage = async ({ params }: { params: { slug: string } }) => {
+  const { slug } = params;
+
+  const data = await getData(slug);
+
   return (
     <div className={styles.container}>
       <div className={styles.infoContainer}>
         <div className={styles.textContainer}>
-          <h1 className={styles.title}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          </h1>
+          <h1 className={styles.title}>{data?.title}</h1>
           <div className={styles.user}>
-            <div className={styles.userImageContainer}>
-              <Image src="/p1.jpeg" alt="" fill className={styles.avatar} />
-            </div>
+            {data?.user?.image && (
+              <div className={styles.userImageContainer}>
+                <Image
+                  src={data.user.image}
+                  alt=""
+                  fill
+                  className={styles.avatar}
+                />
+              </div>
+            )}
             <div className={styles.userTextContainer}>
-              <span className={styles.username}>John Doe</span>
-              <span className={styles.date}>2023.09.16</span>
+              <span className={styles.username}>{data?.user.name}</span>
+              <span className={styles.date}>
+                {data.createdAt.substring(0, 10)}
+              </span>
             </div>
           </div>
         </div>
-        <div className={styles.imageContainer}>
-          <Image src="/p1.jpeg" alt="" fill className={styles.image} />
-        </div>
+        {data?.img && (
+          <div className={styles.imageContainer}>
+            <Image src={data.img} alt="" fill className={styles.image} />
+          </div>
+        )}
       </div>
       <div className={styles.content}>
         <div className={styles.post}>
-          <div className={styles.description}>
-            <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quas
-              nulla repellat minima debitis. Veritatis voluptatum velit aperiam,
-              tenetur architecto ducimus adipisci delectus veniam, praesentium
-              quaerat iure tempore deserunt blanditiis! Quo.
-            </p>
-            <h3>Lorem ipsum dolor sit amet consectetur adipisicing elit.</h3>
-            <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quas
-              nulla repellat minima debitis. Veritatis voluptatum velit aperiam,
-              tenetur architecto ducimus adipisci delectus veniam, praesentium
-              quaerat iure tempore deserunt blanditiis! Quo.
-            </p>
-            <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quas
-              nulla repellat minima debitis. Veritatis voluptatum velit aperiam,
-              tenetur architecto ducimus adipisci delectus veniam, praesentium
-              quaerat iure tempore deserunt blanditiis! Quo.
-            </p>
-          </div>
+          <div
+            className={styles.description}
+            dangerouslySetInnerHTML={{ __html: data?.desc }}
+          />
           <div className={styles.comment}>
             <Comments />
           </div>
