@@ -1,9 +1,28 @@
+"use client";
+
 import Image from "next/image";
 import styles from "./comments.module.css";
 import Link from "next/link";
+import useSWR from "swr";
+import { useSession } from "next-auth/react";
 
-const Comments = () => {
-  const status = "authenticated";
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!res.ok) {
+    const error = new Error(data.message);
+    throw error;
+  }
+  return data;
+};
+
+const Comments = ({ postSlug }: { postSlug: string }) => {
+  const { status } = useSession();
+  const { data, isLoading } = useSWR(
+    `http://localhost:3000/api/comments?postSlug=${postSlug}`,
+    fetcher
+  );
 
   return (
     <div className={styles.container}>
@@ -20,69 +39,30 @@ const Comments = () => {
         <Link href="/login">Login to write a comment</Link>
       )}
       <div className={styles.comments}>
-        <div className={styles.comment}>
-          <div className={styles.user}>
-            <Image
-              src="/p1.jpeg"
-              alt=""
-              width={50}
-              height={50}
-              className={styles.image}
-            />
-            <div className={styles.userInfo}>
-              <span className={styles.username}>John Doe</span>
-              <span className={styles.date}>2023.09.16</span>
-            </div>
-          </div>
-          <p className={styles.desc}>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Assumenda
-            adipisci ut possimus voluptatibus quis officiis facere accusantium,
-            mollitia est eligendi aperiam maxime, nostrum nobis dicta saepe
-            quaerat facilis vero illo?
-          </p>
-        </div>
-        <div className={styles.comment}>
-          <div className={styles.user}>
-            <Image
-              src="/p1.jpeg"
-              alt=""
-              width={50}
-              height={50}
-              className={styles.image}
-            />
-            <div className={styles.userInfo}>
-              <span className={styles.username}>John Doe</span>
-              <span className={styles.date}>2023.09.16</span>
-            </div>
-          </div>
-          <p className={styles.desc}>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Assumenda
-            adipisci ut possimus voluptatibus quis officiis facere accusantium,
-            mollitia est eligendi aperiam maxime, nostrum nobis dicta saepe
-            quaerat facilis vero illo?
-          </p>
-        </div>
-        <div className={styles.comment}>
-          <div className={styles.user}>
-            <Image
-              src="/p1.jpeg"
-              alt=""
-              width={50}
-              height={50}
-              className={styles.image}
-            />
-            <div className={styles.userInfo}>
-              <span className={styles.username}>John Doe</span>
-              <span className={styles.date}>2023.09.16</span>
-            </div>
-          </div>
-          <p className={styles.desc}>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Assumenda
-            adipisci ut possimus voluptatibus quis officiis facere accusantium,
-            mollitia est eligendi aperiam maxime, nostrum nobis dicta saepe
-            quaerat facilis vero illo?
-          </p>
-        </div>
+        {isLoading
+          ? "loading"
+          : data?.map((item: any) => (
+              <div className={styles.comment} key={item._id}>
+                <div className={styles.user}>
+                  {item?.user?.image && (
+                    <Image
+                      src={item.user.image}
+                      alt=""
+                      width={50}
+                      height={50}
+                      className={styles.image}
+                    />
+                  )}
+                  <div className={styles.userInfo}>
+                    <span className={styles.username}>{item.user.name}</span>
+                    <span className={styles.date}>
+                      {item.createdAt.substring(0, 10)}
+                    </span>
+                  </div>
+                </div>
+                <p className={styles.desc}>{item.desc}</p>
+              </div>
+            ))}
       </div>
     </div>
   );
