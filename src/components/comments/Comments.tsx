@@ -5,6 +5,7 @@ import styles from "./comments.module.css";
 import Link from "next/link";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -19,10 +20,20 @@ const fetcher = async (url: string) => {
 
 const Comments = ({ postSlug }: { postSlug: string }) => {
   const { status } = useSession();
-  const { data, isLoading } = useSWR(
+  const { data, mutate, isLoading } = useSWR(
     `http://localhost:3000/api/comments?postSlug=${postSlug}`,
     fetcher
   );
+
+  const [desc, setDesc] = useState<string>("");
+
+  const handleSubmit: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    await fetch("/api/comments", {
+      method: "POST",
+      body: JSON.stringify({ desc, postSlug }),
+    });
+    mutate();
+  };
 
   return (
     <div className={styles.container}>
@@ -32,8 +43,11 @@ const Comments = ({ postSlug }: { postSlug: string }) => {
           <textarea
             placeholder="댓글을 입력해주세요 :)"
             className={styles.input}
+            onChange={(e) => setDesc(e.target.value)}
           />
-          <button className={styles.button}>등록</button>
+          <button className={styles.button} onClick={handleSubmit}>
+            등록
+          </button>
         </div>
       ) : (
         <Link href="/login">Login to write a comment</Link>
