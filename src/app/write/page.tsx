@@ -2,11 +2,20 @@
 
 import Image from "next/image";
 import styles from "./writePage.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.bubble.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { app } from "@/utils/firebase";
+
+const storage = getStorage(app);
 
 const WritePage = () => {
   const { status } = useSession();
@@ -14,8 +23,42 @@ const WritePage = () => {
   const router = useRouter();
 
   const [file, setFile] = useState<File>();
+  const [media, setMedia] = useState(""); // downloadURL
+  const [title, setTitle] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
+
+  useEffect(() => {
+    const upload = () => {
+      const name = new Date().getTime + file!.name;
+      const storageRef = ref(storage, name);
+
+      const uploadTask = uploadBytesResumable(storageRef, file!);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+          }
+        },
+        (error) => {},
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log("File available at", downloadURL);
+          });
+        }
+      );
+    };
+    file && upload; // file이 있을 경우에만 upload 함수 실행
+  }, [file]);
 
   if (status === "loading") {
     return <div>Loading...</div>;
