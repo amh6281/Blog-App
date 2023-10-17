@@ -13,15 +13,22 @@ const WritePage = () => {
 
   const router = useRouter();
 
+  const [file, setFile] = useState<File>();
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
 
   if (status === "loading") {
     return <div>Loading...</div>;
   }
-  if (status === "authenticated") {
+  if (status === "unauthenticated") {
     router.push("/");
   }
+
+  const handleChangeImg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    const item = (target.files as FileList)[0];
+    setFile(item);
+  };
 
   return (
     <div className={styles.container}>
@@ -32,8 +39,16 @@ const WritePage = () => {
         </button>
         {open && (
           <div className={styles.add}>
+            <input
+              type="file"
+              id="image"
+              onChange={handleChangeImg}
+              style={{ display: "none" }}
+            />
             <button className={styles.addButton}>
-              <Image src="/image.png" alt="" width={16} height={16} />
+              <label htmlFor="image">
+                <Image src="/image.png" alt="" width={16} height={16} />
+              </label>
             </button>
             <button className={styles.addButton}>
               <Image src="/external.png" alt="" width={16} height={16} />
