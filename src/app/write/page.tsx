@@ -70,7 +70,7 @@ const WritePage = () => {
     router.push("/");
   }
 
-  const slugify = (str) =>
+  const slugify = (str: string) =>
     str
       .toLowerCase()
       .trim()
