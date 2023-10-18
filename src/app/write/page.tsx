@@ -15,8 +15,6 @@ import {
 } from "firebase/storage";
 import { app } from "@/utils/firebase";
 
-const storage = getStorage(app);
-
 const WritePage = () => {
   const { status } = useSession();
 
@@ -29,11 +27,14 @@ const WritePage = () => {
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
+    const storage = getStorage(app);
+
     const upload = () => {
-      const name = new Date().getTime + file!.name;
+      const name = new Date().getTime() + file!.name;
       const storageRef = ref(storage, name);
 
       const uploadTask = uploadBytesResumable(storageRef, file!);
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -52,12 +53,13 @@ const WritePage = () => {
         (error) => {},
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
+            setMedia(downloadURL);
           });
         }
       );
     };
-    file && upload; // file이 있을 경우에만 upload 함수 실행
+
+    file && upload();
   }, [file]);
 
   if (status === "loading") {
@@ -75,7 +77,12 @@ const WritePage = () => {
 
   return (
     <div className={styles.container}>
-      <input type="text" placeholder="Title" className={styles.input} />
+      <input
+        type="text"
+        placeholder="Title"
+        className={styles.input}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <div className={styles.editor}>
         <button className={styles.button} onClick={() => setOpen(!open)}>
           <Image src="/plus.png" alt="" width={16} height={16} />
