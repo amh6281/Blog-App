@@ -25,6 +25,7 @@ const WritePage = () => {
   const [title, setTitle] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
+  const [catSlug, setCatSlug] = useState("");
 
   useEffect(() => {
     const storage = getStorage(app);
@@ -69,10 +70,36 @@ const WritePage = () => {
     router.push("/");
   }
 
+  const slugify = (str) =>
+    str
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
   const handleChangeImg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
     const item = (target.files as FileList)[0];
     setFile(item);
+  };
+
+  const handleSubmit = async () => {
+    const res = await fetch("/api/posts", {
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        desc: value,
+        img: media,
+        slug: slugify(title),
+        catSlug: catSlug || "-", //If not selected, choose the general category
+      }),
+    });
+
+    if (res.status === 200) {
+      const data = await res.json();
+      router.push(`/posts/${data.slug}`);
+    }
   };
 
   return (
@@ -83,6 +110,17 @@ const WritePage = () => {
         className={styles.input}
         onChange={(e) => setTitle(e.target.value)}
       />
+      <select
+        className={styles.select}
+        onChange={(e) => setCatSlug(e.target.value)}
+      >
+        <option value="style">style</option>
+        <option value="fashion">fashion</option>
+        <option value="food">food</option>
+        <option value="culture">culture</option>
+        <option value="travel">travel</option>
+        <option value="coding">coding</option>
+      </select>
       <div className={styles.editor}>
         <button className={styles.button} onClick={() => setOpen(!open)}>
           <Image src="/plus.png" alt="" width={16} height={16} />
@@ -116,7 +154,9 @@ const WritePage = () => {
           placeholder="Tell your story..."
         />
       </div>
-      <button className={styles.publish}>등록</button>
+      <button className={styles.publish} onClick={handleSubmit}>
+        등록
+      </button>
     </div>
   );
 };
